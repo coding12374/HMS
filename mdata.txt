@@ -1,0 +1,5 @@
+90;Panadol;90;80;9911;Reduce the headache
+89;Decolgen;90;70;972;Reduce the fever
+88;Stugeron;100;70;99990;Reduce motion sickness
+91;pfizer;90;50;100000;Covid 19 vaccine
+92;Traphaco;80;100;1200;Use as functional food to reduce headace 
