@@ -339,21 +339,51 @@ private void initialize() {
             // Parse Medicines List
             StringBuilder medicines = new StringBuilder();
             String[] medicineEntries = medicineListArea.getText().split("\n");
+            int totalMedicineCost = 0; // Total medicine cost
             for (String entry : medicineEntries) {
                 if (!entry.isEmpty()) {
                     String[] details = entry.split(" - Quantity: ");
-                    String medicineID = details[0].split(" ")[0]; // Medicine ID
-                    medicines.append(medicineID).append(",");
+                    int medicineID = Integer.parseInt(details[0].split(" ")[0]); // Medicine ID
+                    int quantity = Integer.parseInt(details[1]); // Quantity sold
+
+                    // Get medicine from HashTable
+                    Medicine medicine = medicineTable.get(medicineID);
+                    if (medicine != null) {
+                        // Check if there is enough stock
+                        if (medicine.getQuantity() < quantity) {
+                            JOptionPane.showMessageDialog(frame, 
+                                "Not enough stock for medicine: " + medicine.getName(),
+                                "Error", JOptionPane.ERROR_MESSAGE);
+                            return;
+                        }
+                        // Deduct quantity from stock
+                        medicine.setQuantity(medicine.getQuantity() - quantity);
+                        // Add cost to total medicine cost
+                        totalMedicineCost += quantity * medicine.getSellingPrice();
+                        // Append to medicines list
+                        medicines.append(medicineID).append(",");
+                    }
                 }
             }
 
+            // Calculate total cost
+            int totalCost = doctorFee + totalMedicineCost;
+
             // Save to file
             try (FileWriter fileWriter = new FileWriter("src/hospital/record.txt", true)) { // Append mode
-                fileWriter.write(patientID + ";" + medicines + ";" + recommendation + ";" + date + ";" + doctorFee + "\n");
+                fileWriter.write(patientID + ";" + doctorFee + ";" + recommendation + ";" + date + ";" + medicines + "\n");
             }
 
-            // Display Message Dialog
-            JOptionPane.showMessageDialog(frame, "Record saved successfully!", "Success", JOptionPane.INFORMATION_MESSAGE);
+            // Save updated medicine data to file
+            saveAllMData();
+
+            // Display costs to user
+            JOptionPane.showMessageDialog(frame, 
+                "Checkup saved successfully!\n" +
+                "Doctor Fee: " + doctorFee + "\n" +
+                "Total Medicine Cost: " + totalMedicineCost + "\n" +
+                "Total Cost: " + totalCost,
+                "Success", JOptionPane.INFORMATION_MESSAGE);
 
             // Clear fields after saving
             patientIDTextField.setText("");
@@ -368,6 +398,8 @@ private void initialize() {
             JOptionPane.showMessageDialog(frame, "An error occurred while saving the record.", "Error", JOptionPane.ERROR_MESSAGE);
         }
     });
+
+
 
 
     patientInfoPanel.add(saveButton);
