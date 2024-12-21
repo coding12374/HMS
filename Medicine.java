@@ -11,12 +11,12 @@ public class Medicine {
 		this.name = null;
 		this.description = null;
 	}
-	public Medicine(int id, int buyingPrice, int sellingPrice, int quantity, String name, String description) {
+	public Medicine(int id, String name, int sellingPrice, int buyingPrice, int quantity, String description) {
 		this.id = id;
-		this.buyingPrice = buyingPrice;
-		this.sellingPrice = sellingPrice;
-		this.quantity = quantity;
 		this.name = name;
+		this.sellingPrice = sellingPrice;
+		this.buyingPrice = buyingPrice;
+		this.quantity = quantity;
 		this.description = description;
 	}
 	public int getId() {
@@ -57,7 +57,7 @@ public class Medicine {
 	}
 	@Override
 	public String toString() {
-		return "Medicine [id = " + id + ", buyingPrice = " + buyingPrice + ", sellingPrice = " + sellingPrice + ", quantity = "
-				+ quantity + ", name = " + name + ", description = " + description + "]";
+		return "Medicine [id = " + id + ", name = " + name + ", sellingPrice = " + sellingPrice + ", buyingPrice = " + buyingPrice
+		        + ", quantity = " + quantity + ", description = " + description + "]";
 	}
 }
