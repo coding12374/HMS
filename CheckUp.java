@@ -90,10 +90,10 @@ public class CheckUp extends JFrame {
                 String[] currentData = data.split(";");
                 Medicine medicine = new Medicine(
                     Integer.parseInt(currentData[0]), // ID
-                    Integer.parseInt(currentData[3]), // Buying Price
-                    Integer.parseInt(currentData[2]), // Selling Price
-                    Integer.parseInt(currentData[4]), // Quantity
                     currentData[1],                   // Name
+                    Integer.parseInt(currentData[2]), // Selling Price
+                    Integer.parseInt(currentData[3]), // Buying Price
+                    Integer.parseInt(currentData[4]), // Quantity
                     currentData[5]                    // Description
                 );
                 medicineTable.insert(medicine.getId(), medicine); // Hoặc medicineList.add(medicine)
@@ -133,31 +133,37 @@ public class CheckUp extends JFrame {
 /**
  * Read billing records from file.
  */
-public void readAllRData() {
-    try {
-        File file = new File("src/hospital/record.txt");
-        Scanner scanner = new Scanner(file);
-        while (scanner.hasNextLine()) {
-            String data = scanner.nextLine();
-            String[] currentData = data.split(";");
-            BillingInfo record = new BillingInfo();
-            record.setPatientID(currentData[0]);
-            record.setFee(Integer.parseInt(currentData[1]));
-            record.setRecomendations(currentData[2]);
-            record.setDate(currentData[3]);
-            String[] medicineIDs = currentData[4].split(",");
-            for (String medicineID : medicineIDs) {
-                if (!medicineID.isEmpty()) {
-                    record.addMedicineID(Integer.parseInt(medicineID));
+    public void readAllRData() {
+        try {
+            File file = new File("src/hospital/record.txt");
+            Scanner scanner = new Scanner(file);
+            while (scanner.hasNextLine()) {
+                String data = scanner.nextLine();
+                String[] currentData = data.split(";");
+                BillingInfo record = new BillingInfo();
+                record.setPatientID(currentData[0]);
+                record.setFee(Integer.parseInt(currentData[1]));
+                record.setRecomendations(currentData[2]);
+                record.setDate(currentData[3]);
+
+                String[] medicineIDs = currentData[4].split(",");
+                String[] quantities = currentData[5].split(",");
+
+                for (int j = 0; j < medicineIDs.length; j++) {
+                    if (!medicineIDs[j].isEmpty() && !quantities[j].isEmpty()) {
+                        record.addMedicineID(Integer.parseInt(medicineIDs[j].trim()));
+                        record.addMedicineQuantity(Integer.parseInt(quantities[j].trim()));
+                    }
                 }
+
+                recordList.insert(record);
             }
-            recordList.insert(record);
+            scanner.close();
+        } catch (Exception e) {
+            e.printStackTrace();
         }
-        scanner.close();
-    } catch (Exception e) {
-        e.printStackTrace();
     }
-}
+
 
 /**
  * Save all medicines data to file.
@@ -336,8 +342,10 @@ private void initialize() {
             DateFormat dateFormat = new SimpleDateFormat("dd:MM:yyyy");
             String date = dateFormat.format(new Date());
 
-            // Parse Medicines List
+           
+         // Parse Medicines List
             StringBuilder medicines = new StringBuilder();
+            StringBuilder quantities = new StringBuilder(); // Thêm danh sách số lượng
             String[] medicineEntries = medicineListArea.getText().split("\n");
             int totalMedicineCost = 0; // Total medicine cost
             for (String entry : medicineEntries) {
@@ -362,16 +370,19 @@ private void initialize() {
                         totalMedicineCost += quantity * medicine.getSellingPrice();
                         // Append to medicines list
                         medicines.append(medicineID).append(",");
+                        quantities.append(quantity).append(","); // Lưu số lượng
                     }
                 }
             }
-
-            // Calculate total cost
+     
+            //calculate total cost
             int totalCost = doctorFee + totalMedicineCost;
 
-            // Save to file
+
+            // Lưu vào file record.txt
             try (FileWriter fileWriter = new FileWriter("src/hospital/record.txt", true)) { // Append mode
-                fileWriter.write(patientID + ";" + doctorFee + ";" + recommendation + ";" + date + ";" + medicines + "\n");
+                fileWriter.write(patientID + ";" + doctorFee + ";" + recommendation + ";" + date + ";" 
+                                + medicines + ";" + quantities + "\n");
             }
 
             // Save updated medicine data to file
