@@ -5,6 +5,7 @@ public class BillingInfo {
     private DoublyLinkedList<Integer> medicineID;
     private String recomendations, date;
     private int fee;
+    private DoublyLinkedList<Integer> medicineQuantities = new DoublyLinkedList<>();
 
     public BillingInfo() {
         this.patientID = null;
@@ -12,6 +13,14 @@ public class BillingInfo {
         this.recomendations = null;
         this.date = null;
         this.fee = 0;
+    }
+    
+    public DoublyLinkedList<Integer> getMedicineQuantities() {
+        return medicineQuantities;
+    }
+
+    public void addMedicineQuantity(int quantity) {
+        this.medicineQuantities.insert(quantity);
     }
 
     public String getPatientID() {
