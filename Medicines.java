@@ -46,10 +46,10 @@ public class Medicines extends JFrame {
                 String[] currentData = data.split(";");
                 Medicine medicine = new Medicine(
                     Integer.parseInt(currentData[0]), // ID
+                    currentData[1], // Name
                     Integer.parseInt(currentData[2]), // Selling Price
                     Integer.parseInt(currentData[3]), // Buying Price
                     Integer.parseInt(currentData[4]), // Quantity
-                    currentData[1], // Name
                     currentData[5]  // Description
                 );
                 medicineList.put(medicine.getId(), medicine); // Thêm vào MyLinkedHashMap
@@ -87,6 +87,7 @@ public class Medicines extends JFrame {
     private void initialize() {
         frame = new JFrame();
         frame.setBounds(100, 100, 1127, 502);
+        frame.setTitle("Medicine");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.getContentPane().setLayout(null);
 
@@ -166,19 +167,47 @@ public class Medicines extends JFrame {
 
         JButton saveButton = new JButton("Save");
         saveButton.addActionListener(e -> {
-            Medicine medicine = new Medicine(
-                Integer.parseInt(medicineIDTextField.getText()),
-                Integer.parseInt(medicineSellingPriceTextField.getText()),
-                Integer.parseInt(medicineBuyingPriceTextField.getText()),
-                Integer.parseInt(medicineQuantityTextField.getText()),
-                medicineNameTextField.getText(),
-                medicineDescriptionTextField.getText()
-            );
-            medicineList.put(medicine.getId(), medicine);
-            saveAllData();
-            writeAllData();
-            JOptionPane.showMessageDialog(frame, "Medicine added successfully!");
+            if (medicineIDTextField.getText().isEmpty() ||
+                medicineNameTextField.getText().isEmpty() ||
+                medicineSellingPriceTextField.getText().isEmpty() ||
+                medicineBuyingPriceTextField.getText().isEmpty() ||
+                medicineQuantityTextField.getText().isEmpty() ||
+                medicineDescriptionTextField.getText().isEmpty()) {
+                JOptionPane.showMessageDialog(null, "All fields must be filled!");
+            } else {
+                int medicineID = Integer.parseInt(medicineIDTextField.getText());
+                if (medicineList.containsKey(medicineID)) {
+                    JOptionPane.showMessageDialog(null, "Medicine ID already exists!");
+                } else {
+                    try {
+                        Medicine medicine = new Medicine(
+                            medicineID,
+                            medicineNameTextField.getText(),
+                            Integer.parseInt(medicineSellingPriceTextField.getText()),
+                            Integer.parseInt(medicineBuyingPriceTextField.getText()),
+                            Integer.parseInt(medicineQuantityTextField.getText()),
+                            medicineDescriptionTextField.getText()
+                        );
+                        medicineList.put(medicine.getId(), medicine);
+                        saveAllData();
+                        writeAllData();
+
+                        // Clear input fields after saving
+                        medicineIDTextField.setText("");
+                        medicineNameTextField.setText("");
+                        medicineSellingPriceTextField.setText("");
+                        medicineBuyingPriceTextField.setText("");
+                        medicineQuantityTextField.setText("");
+                        medicineDescriptionTextField.setText("");
+
+                        JOptionPane.showMessageDialog(null, "Medicine added successfully!");
+                    } catch (NumberFormatException ex) {
+                        JOptionPane.showMessageDialog(null, "Please enter valid numbers for Selling Price, Buying Price, and Quantity!");
+                    }
+                }
+            }
         });
+
         saveButton.setBounds(150, 270, 80, 30);
         inputPanel.add(saveButton);
 
