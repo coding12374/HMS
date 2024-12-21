@@ -82,10 +82,10 @@ public class Reports extends JFrame {
                 String[] currentData = data.split(";");
                 Medicine medicine = new Medicine(
                     Integer.parseInt(currentData[0]), // Medicine ID
+                    currentData[1], // Name
                     Integer.parseInt(currentData[2]), // Selling Price
                     Integer.parseInt(currentData[3]), // Buying Price
                     Integer.parseInt(currentData[4]), // Quantity
-                    currentData[1], // Name
                     currentData[5] // Description
                 );
                 medicineTable.insert(Integer.parseInt(currentData[0]), medicine); // Key: Medicine ID
@@ -240,6 +240,7 @@ private void initialize() {
                                 recordTextArea.append("Medicine ID " + temp.getAtIndex(j) + " not found.\n");
                             }
                         }
+
 
                         recordTextArea.append("\nDate: " + record.getDate());
                         recordTextArea.append("\nRecommendation = " + record.getRecomendations());
