@@ -60,10 +60,10 @@ public class Earnings extends JFrame {
                 String[] currentData = data.split(";");
                 Medicine medicine = new Medicine(
                     Integer.parseInt(currentData[0]),
+                    currentData[1],
                     Integer.parseInt(currentData[2]),
                     Integer.parseInt(currentData[3]),
                     Integer.parseInt(currentData[4]),
-                    currentData[1],
                     currentData[5]
                 );
                 medicineTable.insert(medicine.getId(), medicine); // Thêm vào HashTable
@@ -90,12 +90,16 @@ public class Earnings extends JFrame {
                 record.setRecomendations(currentData[2]);
                 record.setDate(currentData[3]);
 
-                String[] medicines = currentData[4].split(",");
-                for (String medID : medicines) {
-                    if (!medID.isEmpty()) {
-                        record.addMedicineID(Integer.parseInt(medID));
+                String[] medicineIDs = currentData[4].split(",");
+                String[] quantities = currentData[5].split(",");
+
+                for (int j = 0; j < medicineIDs.length; j++) {
+                    if (!medicineIDs[j].isEmpty() && !quantities[j].isEmpty()) {
+                        record.addMedicineID(Integer.parseInt(medicineIDs[j].trim()));
+                        record.addMedicineQuantity(Integer.parseInt(quantities[j].trim()));
                     }
                 }
+
                 recordList.insert(record);
             }
             scanner.close();
@@ -103,38 +107,51 @@ public class Earnings extends JFrame {
             e.printStackTrace();
         }
     }
+
 /**
  * Calculate the profit from medicines based on ID.
  */
-public int getMedicineProfit(int id) {
-    Medicine medicine = medicineTable.get(id); // Lấy thuốc từ HashTable
-    if (medicine != null) {
-        return medicine.getSellingPrice() - medicine.getBuyingPrice();
+    public int getMedicineProfit(int id, int quantity) {
+        Medicine medicine = medicineTable.get(id); 
+        if (medicine != null && quantity > 0) {
+            int profitPerUnit = medicine.getSellingPrice() - medicine.getBuyingPrice();
+            return profitPerUnit * quantity; 
+        }
+        return 0; 
     }
-    return 0;
-}
+
+
 
 /**
  * Calculate and display all earnings.
  */
-public void getAllEarnings() {
-    int earningsByFee = 0;
-    int earningsByMedicines = 0;
+    public void getAllEarnings() {
+        int earningsByFee = 0;
+        int earningsByMedicines = 0;
 
-    for (int i = 0; i < recordList.size(); i++) {
-        BillingInfo record = recordList.getAtIndex(i);
-        earningsByFee += record.getFee();
+        for (int i = 0; i < recordList.size(); i++) {
+            BillingInfo record = recordList.getAtIndex(i);
+            earningsByFee += record.getFee();
 
-        DoublyLinkedList<Integer> tempMedicineIDs = record.getMedicineID();
-        for (int j = 0; j < tempMedicineIDs.size(); j++) {
-            earningsByMedicines += getMedicineProfit(tempMedicineIDs.getAtIndex(j));
+            DoublyLinkedList<Integer> tempMedicineIDs = record.getMedicineID();
+            DoublyLinkedList<Integer> tempQuantities = record.getMedicineQuantities();
+
+            for (int j = 0; j < tempMedicineIDs.size(); j++) {
+                int medicineID = tempMedicineIDs.getAtIndex(j);
+                int quantity = tempQuantities.getAtIndex(j);
+
+                if (medicineTable.get(medicineID) != null) {
+                    int profit = (medicineTable.get(medicineID).getSellingPrice() - 
+                                  medicineTable.get(medicineID).getBuyingPrice()) * quantity;
+                    earningsByMedicines += profit;
+                }
+            }
         }
-    }
 
-    earningByFeeNo.setText(earningsByFee + "");
-    earningByMedicinesNo.setText(earningsByMedicines + "");
-    netEarningNo.setText((earningsByFee + earningsByMedicines) + "");
-}
+        earningByFeeNo.setText(String.valueOf(earningsByFee));
+        earningByMedicinesNo.setText(String.valueOf(earningsByMedicines));
+        netEarningNo.setText(String.valueOf(earningsByFee + earningsByMedicines));
+    }
 
 /**
  * Initialize the GUI.
@@ -170,7 +187,7 @@ private void initialize() {
     homePageButton.setBounds(479, 13, 121, 25);
     titlePanel.add(homePageButton);
 
-    ImageIcon moneyIcon = new ImageIcon("C:\\Users\\Dell\\eclipse-workspace\\HospitalManagementSystem\\src\\hospital\\money.jpg");
+    ImageIcon moneyIcon = new ImageIcon("src/hospital/money.jpg");
     Image moneyImg = moneyIcon.getImage().getScaledInstance(120, 120, Image.SCALE_SMOOTH);
     JLabel reportImage = new JLabel(new ImageIcon(moneyImg));
     reportImage.setBounds(12, 13, 92, 76);
